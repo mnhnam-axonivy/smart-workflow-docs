@@ -9,6 +9,11 @@
 # this repository by default - point the volume mount below at wherever it is
 # checked out, e.g. ../smart-workflow-doc if this repo and that one share a
 # parent directory.
+#
+# This previews smart-workflow's own site, so no `environment:` overrides are
+# needed here - the defaults already match. A different consumer would add
+# SITE_TITLE / SITE_URL / SITE_BASE_URL / GITHUB_ORG / GITHUB_REPO under
+# `environment:` below (see README.md's "site identity" section).
 services:
   docs:
     image: mnhnam/docusaurus:3

@@ -4,6 +4,11 @@ import { themes as prismThemes } from 'prism-react-renderer';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+// Everything below is overridable via `docker run -e ...` so a second
+// consumer repository can reuse this image without a rebuild. Each default
+// is this repository's own (smart-workflow) value, so a build with no env
+// vars set at all still produces exactly today's site.
+
 // The consumer repository's content directory. The Makefile sets this to the
 // mounted BASEDIR/SITE. The fallback resolves to ../doc/user, which only
 // exists when this config is exercised directly against a checkout of the
@@ -12,8 +17,24 @@ import { themes as prismThemes } from 'prism-react-renderer';
 // var becomes required and a missing content dir fails with a clear error.
 const CONTENT_DIR = process.env.DOCUSAURUS_CONTENT_DIR ?? '../doc/user';
 
+const SITE_TITLE = process.env.SITE_TITLE ?? 'Smart Workflow';
+const SITE_URL = process.env.SITE_URL ?? 'https://axonivy-market.github.io';
+const SITE_BASE_URL = process.env.SITE_BASE_URL ?? '/smart-workflow/';
+
+// GITHUB_ORG/GITHUB_REPO drive organizationName/projectName (GitHub Pages
+// metadata) and, unless overridden directly, the derived GitHub links below.
+const GITHUB_ORG = process.env.GITHUB_ORG ?? 'axonivy-market';
+const GITHUB_REPO = process.env.GITHUB_REPO ?? 'smart-workflow';
+const GITHUB_URL =
+  process.env.GITHUB_URL ?? `https://github.com/${GITHUB_ORG}/${GITHUB_REPO}`;
+// Assumes content lives at doc/user on the default branch, matching this
+// repository's own layout - override directly if a consumer's branch name or
+// content path differs.
+const SITE_EDIT_URL =
+  process.env.SITE_EDIT_URL ?? `${GITHUB_URL}/tree/master/doc/user/`;
+
 const config: Config = {
-  title: 'Smart Workflow',
+  title: SITE_TITLE,
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -21,12 +42,12 @@ const config: Config = {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
 
-  url: 'https://axonivy-market.github.io',
-  baseUrl: '/smart-workflow/',
+  url: SITE_URL,
+  baseUrl: SITE_BASE_URL,
 
   // GitHub pages deployment config.
-  organizationName: 'axonivy-market',
-  projectName: 'smart-workflow',
+  organizationName: GITHUB_ORG,
+  projectName: GITHUB_REPO,
 
   onBrokenLinks: 'warn',
   markdown: {
@@ -63,8 +84,7 @@ const config: Config = {
         docs: {
           path: CONTENT_DIR,
           sidebarPath: './sidebars.ts',
-          editUrl:
-            'https://github.com/axonivy-market/smart-workflow/tree/master/doc/user/',
+          editUrl: SITE_EDIT_URL,
           versions: {
             current: {
               label: '14.0.0-beta6',
@@ -85,9 +105,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Smart Workflow',
+      title: SITE_TITLE,
       logo: {
-        alt: 'Smart Workflow Logo',
+        alt: `${SITE_TITLE} Logo`,
         src: 'img/logo.svg',
       },
       items: [
@@ -98,7 +118,7 @@ const config: Config = {
           label: 'Docs',
         },
         {
-          href: 'https://github.com/axonivy-market/smart-workflow',
+          href: GITHUB_URL,
           label: 'GitHub',
           position: 'right',
         },
@@ -120,12 +140,12 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/axonivy-market/smart-workflow',
+              href: GITHUB_URL,
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Smart Workflow. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} ${SITE_TITLE}. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

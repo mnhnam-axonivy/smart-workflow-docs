@@ -1,6 +1,7 @@
 import Link from '@docusaurus/Link';
 import { useVersions } from '@docusaurus/plugin-content-docs/client';
 import Translate, { translate } from '@docusaurus/Translate';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Heading from '@theme/Heading';
 import Layout from '@theme/Layout';
 import clsx from 'clsx';
@@ -8,6 +9,7 @@ import type { ReactNode } from 'react';
 import styles from './index.module.css';
 
 function HomepageHeader() {
+  const {siteConfig} = useDocusaurusContext();
   const versions = useVersions('default');
   // Find the 'current' (next) version, which is the unreleased version corresponding to the docs/ folder
   const currentVersion = versions.find((v) => v.name === 'current') || versions[0];
@@ -16,7 +18,7 @@ function HomepageHeader() {
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
         <Heading as="h1" className="hero__title">
-          Smart Workflow
+          {siteConfig.title}
         </Heading>
         <p className="hero__subtitle">
           <Translate id="homepage.subtitle">Bring AI directly into Axon Ivy</Translate>
@@ -104,9 +106,11 @@ function HomepageFeatures() {
 }
 
 export default function Home(): ReactNode {
+  // No `title` prop: Docusaurus's Layout falls back to siteConfig.title alone
+  // for the homepage, avoiding a "SITE_TITLE | SITE_TITLE" duplicate that a
+  // hardcoded page-specific title combined with the site title would produce.
   return (
     <Layout
-      title={translate({id: 'homepage.title', message: 'Smart Workflow'})}
       description={translate({id: 'homepage.description', message: 'Smart Workflow brings AI directly into Axon Ivy'})}>
       <HomepageHeader />
       <main>

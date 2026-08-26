@@ -46,6 +46,36 @@ yet — this image currently builds a single locale with no version history.
 
 `BASEDIR` must be absolute.
 
+## site identity
+
+These are read by `docusaurus.config.ts` at config-load time, exactly like
+`DOCUSAURUS_CONTENT_DIR`. Unlike `BASEDIR`/`SITE` above, pass them as
+`docker run -e` flags, not `make` arguments — `make` never touches them, they
+go straight into the container's process environment and Node reads them
+directly. Every default below is this repository's own (`smart-workflow`)
+value, so a build with none of these set still produces exactly today's site.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `SITE_TITLE` | `Smart Workflow` | Site title, navbar title, footer copyright |
+| `SITE_URL` | `https://axonivy-market.github.io` | Production URL |
+| `SITE_BASE_URL` | `/smart-workflow/` | Path the site is served under |
+| `GITHUB_ORG` | `axonivy-market` | `organizationName`; feeds the derived `GITHUB_URL` below |
+| `GITHUB_REPO` | `smart-workflow` | `projectName`; feeds the derived `GITHUB_URL` below |
+| `GITHUB_URL` | `https://github.com/$GITHUB_ORG/$GITHUB_REPO` | Navbar + footer GitHub link |
+| `SITE_EDIT_URL` | `$GITHUB_URL/tree/master/doc/user/` | Base for every doc page's "Edit this page" link |
+
+`SITE_EDIT_URL`'s default assumes content lives at `doc/user` on the `master`
+branch, matching this repository's own layout — set it directly if a
+consumer's branch name or content path differs.
+
+**Not covered by these variables:** `favicon.ico`, `logo.svg`, and
+`img/axon-ivy-social-card.png` under `static/img/` are files baked into the
+image at `docker build` time, not runtime config. A consumer wanting
+different branding needs its own image build (or a future mechanism to mount
+`static/img/` at runtime too) — env vars only reach values `docusaurus.config.ts`
+itself reads.
+
 ## targets
 
 ```sh
@@ -86,6 +116,18 @@ Keep the artifact upload on the host runner rather than moving the whole job
 into a `container:`. JS actions run inside a job container and the runner's
 bundled Node needs glibc, which makes alpine-based job containers brittle.
 
+A different consumer repository overrides [site identity](#site-identity) via
+`-e` instead of rebuilding the image:
+
+```sh
+docker run -v .:/doc -u $(id -u) \
+  -e SITE_TITLE="Other Project" \
+  -e SITE_URL="https://axonivy-market.github.io" \
+  -e SITE_BASE_URL="/other-project/" \
+  -e GITHUB_REPO="other-project" \
+  mnhnam/docusaurus:3 make build BASEDIR=/doc SITE=doc/user
+```
+
 ## local validation
 
 `.github/workflows/publish.yml` builds this image on every push and pull
@@ -117,11 +159,6 @@ needed for edits to be picked up.
 
 ## notes
 
-- **`baseUrl` is fixed in this image's `docusaurus.config.ts`** (currently
-  `/smart-workflow/`), not something a consumer can override per build. That
-  is fine while there is exactly one consumer; if a second one ever adopts
-  this image, `baseUrl` would need to become an env var too, the same way
-  `DOCUSAURUS_CONTENT_DIR` already is.
 - **"Last updated" metadata is unavailable.** The build runs in `/doc-build`,
   detached from the mounted `.git`. Harmless unless the site enables
   `showLastUpdateTime`.
