@@ -1,0 +1,19 @@
+# Local documentation preview with hot reload.
+#
+#   docker compose up
+#
+# Then open http://localhost:3000/smart-workflow/ - note the baseUrl subpath,
+# the site is not served at the root.
+#
+# The consumer repository (axonivy-market/smart-workflow) is not a sibling of
+# this repository by default - point the volume mount below at wherever it is
+# checked out, e.g. ../smart-workflow-doc if this repo and that one share a
+# parent directory.
+services:
+  docs:
+    image: mnhnam/docusaurus:3
+    ports:
+      - 3000:3000
+    volumes:
+      - ../smart-workflow-doc:/doc
+    entrypoint: make start BASEDIR=/doc SITE=doc/user

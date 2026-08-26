@@ -1,0 +1,5 @@
+# Everything here is consumed inside Linux containers. The repository root sets
+# `* text=auto`, which combined with core.autocrlf=true checks these files out
+# with CRLF on Windows - a CRLF Makefile fails inside the image with errors like
+# `$'\r': command not found`. Pin them to LF.
+* text eol=lf

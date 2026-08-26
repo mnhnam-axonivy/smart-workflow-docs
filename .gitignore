@@ -1,0 +1,12 @@
+# Dependencies (baked into the image at build time; only appears locally if
+# npm is run outside the container, e.g. for editor IntelliSense)
+node_modules/
+
+# Docusaurus build output / cache (only appears if docusaurus is run directly
+# against this folder rather than through the container)
+build/
+.docusaurus/
+.cache-loader/
+
+.DS_Store
+*.log
